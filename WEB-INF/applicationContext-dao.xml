@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/util
+         http://www.springframework.org/schema/util/spring-util.xsd">
+        
+    <!-- Scans within the base package of the application for @Components to configure as beans -->
+   <context:annotation-config />
+    <context:component-scan base-package="com.onmobile.apps.msearch.dao" />
+  
+  
+	
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">  
+		<property name="dataSource" ref="dataSource"></property>  
+	</bean>
+
+<bean id="namedParameterJdbcTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">  
+		<constructor-arg  name="dataSource" ref="dataSource"/>
+	</bean>  
+	
+	<bean id="dataSource" class="com.onmobile.apps.msearch.dao.impl.CustomDataSource" destroy-method="close">
+		<property name="driverClassName" value="${db.driverClassName}" />
+		<property name="url" value="${db.url}" />
+		<property name="username" value="${db.user}" />
+		<property name="password" value="${db.passwd}" />
+		<property name="maxIdle" value="${db.maxIdle}"/>
+		<property name="maxWait" value="${db.maxWait}"/>
+		<property name="validationQuery" value="select 1"/>
+		<property name="maxActive" value="${db.maxActive}"/>
+		<property name="removeAbandoned" value="true" />
+		<property name="removeAbandonedTimeout" value="${db.removeAbandonedTimeout}" />
+		<property name="testOnBorrow" value ="true"/>
+		<property name="logAbandoned" value="false"/>
+	</bean>
+	
+		<bean id="myProperties"
+      class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+  	<property name="location">
+   
+      <value>classpath:msearch.properties</value>
+   
+  </property>
+</bean>
+
+	
+	 <context:property-placeholder  properties-ref="myProperties" order="1"  ignore-unresolvable="true"/>
+	
+ 		<util:list id="AppProperties"> 
+			 <value>DEFAULT_COUNTRY_CODE </value>
+			 <value>DEFAULT_OPERATOR_NAME </value>
+			 <value>OS_TYPE </value>
+			 <value>UNICODE_ENG_MAP_DIR </value>
+			 <value>SESSION_THREAD_SLEEP_INTERVAL </value>
+			 <value>DELETE_COUNT </value>
+			 <value>MAIN_SLEEP_TIME </value>
+			 <value>SOLR_DEFAULT_PREF_LANG </value>
+			 <value>POOL_MAXTOTAL </value>
+			 <value>HTTP_SOCKET_TIMEOUT_IN_MILLIS </value>
+			 <value>HTTP_CONNECTION_TIMEOUT_IN_MILLIS </value>
+			 <value>HTTP_PROXY_HOST </value>
+			 <value>HTTP_PROXY_PORT </value>
+			 <value>HTTP_PROXY_USR </value>
+			 <value>HTTP_PROXY_PASS </value>
+			 <value>POOL_DEFAULT_MAX_PER_ROUTE </value>
+			 <value>COMMUNITY </value>
+			 <value>SNMP_AGENT_IPADDRESS </value>
+			 <value>SNMP_AGENT_PORT </value>
+			 <value>SNMP_RETRIES </value>
+			 <value>SNMP_TIMEOUT </value>
+			 <value>SNMP_TRAP_PROCESSOR_START_DELAY </value>
+			 <value>SNMP_TRAP_PROCESSOR_INTERVAL </value>
+			 <value>SNMP_MIBFILE </value>
+			 <value>SNMP_TRAP_ENTITY </value>
+			 <value>snmp.trapSrcAddress</value>
+			 <value>SNMP_ENABLED </value>
+			 <value>USER_CONF_PROCESS_SLEEP_INTERVAL_IN_SEC </value>
+			 <value>USER_CONF_DELETE_INTERVAL_IN_MINUTES </value>
+			 <value>USER_CONF_MISSING_LOG_ENABLED </value>
+			 <value>USER_CONF_NOVA_LOG_ENABLED </value>
+			 <value>RETRY_DELIVERY_SLEEP_INTERVAL </value>
+			 <value>RETRY_DELIVERY_TIME_IN_MINUTES </value>
+			 <value>MAX_DURATION_FOR_DELIVERY_RECORD_IN_DAYS </value>
+			 <value>LIMIT_COUNT_FOR_RETRY_DELIVERY </value>
+			 <value>TOP_DOWNLOADS_SCHEDULE </value>
+			 <value>SNMP_GETS_COMMUNITY</value>
+			 <value>SNMP_GETS_PORT</value>
+			 <value>SNMP_GETS_ADDRESS</value>
+			 <value>MONITOR_HEALTHVAR_SLEEP_TIME</value>
+			 </util:list>
+			 
+</beans>

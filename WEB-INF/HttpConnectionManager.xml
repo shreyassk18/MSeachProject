@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:mvc="http://www.springframework.org/schema/mvc"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:context="http://www.springframework.org/schema/context"
+xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/mvc
+http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+	<context:annotation-config/>	
+	
+	<context:component-scan base-package="com.onmobile.apps.msearch.service.remoting" />
+	
+	<mvc:annotation-driven />
+	
+	<mvc:default-servlet-handler/>
+	
+	<bean id="pooledHttpConnManager"
+		class="org.apache.http.impl.conn.PoolingClientConnectionManager" scope="singleton">
+		<property name="maxTotal" value="${POOL_MAXTOTAL}" />
+		<property name="defaultMaxPerRoute" value="${POOL_DEFAULT_MAX_PER_ROUTE}" />
+	</bean>
+	
+	<bean id="httpParams" class="org.apache.http.params.BasicHttpParams" scope="prototype"/>	
+	
+	 <bean id="httpParamBean" class="org.apache.http.params.HttpConnectionParamBean" scope="prototype">
+        <constructor-arg index="0">
+            <ref bean="httpParams"/>
+        </constructor-arg>
+        <property name="connectionTimeout" value="${HTTP_CONNECTION_TIMEOUT_IN_MILLIS}"/>
+        <property name="soTimeout" value="${HTTP_SOCKET_TIMEOUT_IN_MILLIS}"/>
+    </bean>
+	
+	<bean id="httpClient" class="org.apache.http.impl.client.DefaultHttpClient" scope="prototype">
+		<constructor-arg name="conman" ref="pooledHttpConnManager"></constructor-arg>
+		<constructor-arg name="params" ref="httpParams"></constructor-arg>
+	</bean>
+	
+	<bean id="httpConnection" class="com.onmobile.apps.msearch.service.remoting.HttpConnection" scope="prototype"/>
+	
+	<!-- bean id="proxyInfo" class="com.onmobile.apps.remoting.ProxyInfo">
+	    <property name="proxyHost" value="${http.proxyHost}" />
+	    <property name="proxyPort" value="${http.proxyPort}" />
+	    <property name="proxyUser" value="${http.proxyUser}" />
+	    <property name="proxyPass" value="${http.proxyPass}" />	    
+	</bean-->
+	
+	
+			
+</beans>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd" 
+ default-init-method="refreshAll" default-destroy-method="clearAll">
+
+
+	<context:component-scan base-package="com.onmobile.apps.msearch.service" />
+	<bean id="propertyConfigurer" class="com.onmobile.apps.msearch.service.CustomPropertyPlaceholderConfigurer" > 
+		 <property name="ignoreUnresolvablePlaceholders" value="true" />
+		 <property  name="properties" ref="myProperties"></property>
+		 <property name="appProperties" ref="AppProperties"/>
+		 
+	</bean> 
+	
+		
+	<context:component-scan base-package="com.onmobile.apps.msearch.logger" />
+	<context:component-scan base-package="com.onmobile.apps.msearch.parser" />
+	
+<!--The chain of search executors to be run in order for text search  -->	
+ 
+<util:list id="textSearchExecutors">
+    <ref bean="topABSearchExecutor" />
+    <ref bean="directPromoSearchExecutor"/>
+    <ref bean="promotionCircleSearchExecutor"/>
+    <ref bean="solrQueryABSearchExecutor"/>
+    <ref bean="solrABSearchExecutor"/>
+    <ref bean="solrSearchExecutor"/>
+    <ref bean="recommendationSearchExecutor"/>
+    <ref bean="topABSearchNoResultsExecutor" />
+    <ref bean="noResultsSearchExecutor"/>
+     
+</util:list>
+
+<!--The chain of search executors to be run in order for web search  -->
+ 	
+<util:list id="webSearchExecutors">
+    <ref bean="topABSearchExecutor" />
+    <ref bean="promotionCircleSearchExecutor"/>
+    <ref bean="solrQueryABSearchExecutor"/>
+    <ref bean="solrABSearchExecutor"/>
+    <ref bean="advancedSolrSearchExecutor"/>
+    <ref bean="recommendationSearchExecutor"/>
+    <ref bean="noResultsSearchExecutor"/>
+</util:list>
+
+ 
+<!--The chain of search executors to be run in order for voice search  -->	
+ 
+<util:list id="voiceSearchExecutors">
+<ref bean="topABSearchExecutor" />
+    <ref bean="noSearchQueryExecutor"/>
+    <ref bean="voicePromotionLanguageSearchExecutor"/>
+    <ref bean="voicePromotionCircleSearchExecutor"/>
+    <ref bean="nBestSolrAbSearchExecutor"/>
+    <ref bean="nBestSolrSearchExecutor"/>
+    <ref bean="convertUserQueryToPromoExecutor"/>
+    <ref bean="voicePromotionLanguageSearchExecutor"/>
+    <ref bean="voicePromotionCircleSearchExecutor"/>
+ </util:list>
+ 
+  
+<util:list id="noResultSearchExecutors">
+    <ref bean="recommendationSearchExecutor"/>
+    <ref bean="noResultsSearchExecutor"/>
+</util:list>
+
+</beans>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	 xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context.xsd
+ http://www.springframework.org/schema/util
+         http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<context:annotation-config  />
+	<context:component-scan base-package="com.onmobile.apps.snmp" />
+	<context:component-scan base-package="com.onmobile.apps.msearch.snmp" />
+	
+	<bean id="log4jInitialization" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	    <property name="targetClass" value="org.springframework.util.Log4jConfigurer"/>
+	    <property name="targetMethod" value="initLogging"/>
+	    <property name="arguments">
+	        <list>
+	            <value>classpath:log4j.properties</value>
+	        </list>
+	    </property>
+	</bean>
+
+	<!-- <bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="location">
+			<value>classpath:snmp.properties</value>
+		</property>
+	</bean> -->
+
+	<bean id="transportMapping" class="org.snmp4j.transport.DefaultUdpTransportMapping" autowire="default" />
+	
+	<!-- <bean id="snmpListener" class="com.onmobile.apps.snmp.SnmpListener">
+		<constructor-arg ref="transportMapping"></constructor-arg>
+	</bean>
+	
+	<bean id="snmpGetsListener" class="com.onmobile.apps.snmp.SNMpGetsListener">
+		<constructor-arg ref="transportMapping" name="transport"></constructor-arg>
+		<constructor-arg ref="snmp" name="snmp"></constructor-arg>
+	</bean> -->
+	
+	<bean id="snmp" class="org.snmp4j.Snmp">
+		<constructor-arg ref="transportMapping"></constructor-arg>
+	</bean>
+	
+	<bean id="udpHost" class="java.net.InetAddress" factory-method="getByName">
+		<constructor-arg value="${SNMP_AGENT_IPADDRESS}"></constructor-arg>
+	</bean>
+			
+	<bean id="udpAddress" class="org.snmp4j.smi.UdpAddress">
+		<constructor-arg ref="udpHost"></constructor-arg>
+		<constructor-arg value="${SNMP_AGENT_PORT}"></constructor-arg>
+	</bean>
+
+	<bean id="communityTarget" class="org.snmp4j.CommunityTarget" autowire="default">
+		<property name="community" value="${COMMUNITY}"></property>
+		<property name="address" ref="udpAddress"></property>
+		<property name="retries" value="${SNMP_RETRIES}"></property>
+		<property name="timeout" value="${SNMP_TIMEOUT}"></property>
+		<property name="version" value="1"/>
+	</bean>
+	
+	<bean id="snmpTester" class="com.onmobile.apps.snmp.test.SnmpTester"/>
+	
+	<bean id="trapProcessor" class="com.onmobile.apps.snmp.TrapProcessor">
+		<constructor-arg index="0" value="${SNMP_TRAP_ENTITY}"/>
+		<constructor-arg index="1" value="${snmp.trapSrcAddress}"/>
+	</bean> 
+	
+	<bean id="trapProcessorJob" class="com.onmobile.apps.snmp.TrapProcessorJob">
+		<property name="trapProcessor" ref="trapProcessor"></property>
+	</bean> 
+	
+	<bean name="runTrapProcessorJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean"> 
+		<property name="jobClass" value="com.onmobile.apps.snmp.TrapProcessorJob" />	 
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="trapProcessor" value-ref="trapProcessor" />
+			</map>
+		</property>	 
+	</bean>
+	
+	<!-- Simple Trigger, run every 5 seconds -->
+	<!-- <bean id="simpleTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean"> 
+		<property name="jobDetail" ref="runTrapProcessorJob" />
+		<property name="repeatInterval" value="${SNMP_TRAP_PROCESSOR_INTERVAL}" />
+		<property name="startDelay" value="${SNMP_TRAP_PROCESSOR_START_DELAY}" /> 
+	</bean> -->
+		
+	<!-- <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="jobDetails">
+			<list><ref bean="runTrapProcessorJob" /></list>
+		</property> 
+		<property name="triggers">
+			<list><ref bean="simpleTrigger" /></list>
+		</property>
+	</bean> -->
+	
+	<bean id="mibParser" class="com.onmobile.apps.snmp.MIBParser"  scope="singleton"> 
+		<property name="mibFilePath" value="${SNMP_MIBFILE}" />  
+	</bean> 
+	
+	<bean id="msearchOIDTrapNameLoader" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject" ref="mibParser"/>
+		<property name="targetMethod" value="loadMibNExctractOIDs"/>
+	</bean>
+	
+	<bean id="trapInfoWrapper" class="com.onmobile.apps.snmp.TrapInfoWrapper" scope="singleton">
+		<constructor-arg name="mib" ref="mibParser"></constructor-arg>
+	</bean>
+	
+	
+</beans>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+    http://www.springframework.org/schema/beans 
+    http://www.springframework.org/schema/beans/spring-beans.xsd 
+    http://www.springframework.org/schema/context 
+    http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+	<context:component-scan base-package="com.onmobile.apps.msearch.processor" />
+	
+	<!-- ======================================================================================================== -->
+	<!--Start of delivery Consumer connection configurations -->
+
+	<bean id="consumerConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+		<constructor-arg index="0" value="${ACTIVEMQ_BROKER_URL}" />
+	</bean>
+	<bean id="pooledConsumerConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory"
+		destroy-method="stop">
+		<property name="connectionFactory" ref="consumerConnectionFactory" />
+		<property name="maxConnections" value="100"></property>
+		<property name="maximumActiveSessionPerConnection" value="10" />
+		<property name="blockIfSessionPoolIsFull" value="false" />
+	</bean>
+
+	<!-- End of delivery related Consumer connection configurations -->
+	<!-- ======================================================================================================== -->
+
+
+	<!-- ======================================================================================================== -->
+	<!-- Start of Raw log consumer connection configurations -->
+<bean id="logconsumerConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+		<constructor-arg index="0" value="${ACTIVEMQ_BROKER_URL}" />
+	</bean>
+	<bean id="pooledLogConsumerConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory"
+		destroy-method="stop">
+		<property name="connectionFactory" ref="logconsumerConnectionFactory" />
+		<property name="maxConnections" value="100"></property>
+		<property name="maximumActiveSessionPerConnection" value="10" />
+		<property name="blockIfSessionPoolIsFull" value="false" />
+	</bean>
+
+	<!-- End of Raw Log Consumer connection configurations -->
+	<!-- ======================================================================================================== -->
+
+	<!-- ======================================================================================================== -->
+	<!-- Start of Delivery Producer connection configurations -->
+
+	<bean id="amqConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+		<constructor-arg index="0" value="${ACTIVEMQ_BROKER_URL_DELIVERY_PRODUCER}" />
+	</bean>
+	<bean id="connectionFactory"
+		class="org.springframework.jms.connection.CachingConnectionFactory"
+		destroy-method="destroy">
+		<constructor-arg ref="amqConnectionFactory" />
+	</bean>
+
+
+
+	<bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="connectionFactory" />
+		<!-- <property name="defaultDestination" ref="defaultDestination" /> -->
+	</bean>
+
+	<!-- End of Delivery Producer connection configurations -->
+	<!-- ======================================================================================================== -->
+	
+	
+	
+	<!-- ======================================================================================================== -->
+	<!-- Start of Raw Log Producer connection configurations -->
+
+
+	<bean id="logAmqConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+		<constructor-arg index="0" value="${ACTIVEMQ_BROKER_URL}" />
+	</bean>
+ 	<bean id="logConnectionFactory"
+		class="org.springframework.jms.connection.CachingConnectionFactory"
+		destroy-method="destroy">
+		<constructor-arg ref="logAmqConnectionFactory" />
+	</bean>
+
+<!--         <bean id="logConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory"
+                destroy-method="stop">
+                <property name="connectionFactory" ref="logconsumerConnectionFactory" />
+                <property name="maxConnections" value="100"></property>
+                <property name="maximumActiveSessionPerConnection" value="10" />
+                <property name="blockIfSessionPoolIsFull" value="false" />
+        </bean>
+-->
+
+	<bean id="logJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="logConnectionFactory" />
+		<!-- <property name="defaultDestination" ref="defaultDestination" /> -->
+	</bean>
+
+	<!-- End ofRaw Log Producer connection configurations -->
+	<!-- ======================================================================================================== -->
+	
+	
+</beans>
